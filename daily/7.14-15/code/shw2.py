@@ -82,7 +82,7 @@ for i in range(4):
     plt.plot(np.arange(0, 12+deta_t, deta_t), [x[0, i] - y[0, 0] for x, y in zip(x_list, xPL_list)])
 for i in range(4):
     plt.plot(np.arange(0, 12+deta_t, deta_t), [x[0, i] - y[0, 0] for x, y in zip(x_list, xRL_list)])
-str_list = ["L" + str(i) + " - L" + j for i, j in zip(list(range(4)) * 2, ["1"] * 4 + ["2"] * 4)]
+str_list = ["L" + str(i+1) + " - L" + j for i, j in zip(list(range(4)) * 2, ["1"] * 4 + ["2"] * 4)]
 plt.legend(str_list, loc=1)
 plt.plot([0, 12], [0, 0])
 plt.xlabel("time(s)")
