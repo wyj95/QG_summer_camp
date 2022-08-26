@@ -1,0 +1,188 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as ani
+
+L = np.diag([1, 2, 2, 1, 1, 2, 2, 1])
+for i in range(7):
+    if i != 3 and 4:
+        L[i, i + 1] = -1
+        L[i+1, i] = -1
+    else:
+        L[i, i] = 1
+
+deta_t = 1e-3
+sum_t = 10
+t_list = np.arange(0, sum_t, deta_t)
+
+c_mat = np.matrix([[0, 1, 0, 1, 1, 1, 1, 0]])
+x_mat_list = [np.matrix([[18, 12, 8, 0, 15, 11, 5, 0],
+                         [1] * 4 + [3] * 4])]
+v_mat_list = [np.matrix([[4.8, 5.2, 4.9, 5.1, 6.0, 6.2, 5.8, 6.1],
+                         [0] * 8])]
+xL_mat_list = [np.matrix([[23, 20], [1, 3]])]
+vL_mat_list = [np.matrix([[5.1, 5.8], [0, 0]])]
+R_mat = np.matrix([[x * -5 for x in range(1, 5)] * 2, [1] * 4 + [3] * 4])
+RL_mat = np.matrix([[0, 0], [1, 3]])
+AL_mat = np.matrix([[1, 0]] * 4 + [[0, 1]] * 4).T
+n1 = 0.05014
+
+
+def get_2d(x):
+    y = np.power((np.power(x[0, :], 2) + np.power(x[1, :], 2)), 1 / 2)
+    return y
+
+
+for _ in t_list:
+    temp_mat1 = -np.dot((R_mat - x_mat_list[-1] - v_mat_list[-1]), L)
+    temp_mat2 = -np.dot((x_mat_list[-1] + v_mat_list[-1]), L)
+    h = get_2d(temp_mat1) - n1 * get_2d(temp_mat2)
+    deta_v_mat = -np.dot(x_mat_list[-1] - R_mat + v_mat_list[-1], L) - x_mat_list[-1] + R_mat + \
+                 np.dot(xL_mat_list[-1] - RL_mat + vL_mat_list[-1], AL_mat) - v_mat_list[-1]
+    for i in range(8):
+        if h[0, i] < 0:
+            deta_v_mat[:, i] *= 0
+    deta_vL_mat = np.matrix(np.zeros((2, 2)))
+    hL = get_2d(np.dot(RL_mat, np.matrix([[1], [-1]]))) - \
+         0.001 * get_2d(np.dot(vL_mat_list[-1] + xL_mat_list[-1], np.matrix([[1], [-1]])))
+    if hL > 0:
+        deta_vL_mat[:, 1] = -(xL_mat_list[-1][:, 1] - xL_mat_list[-1][:, 0] - RL_mat[:, 1] + RL_mat[:, 0] +
+                              2 * vL_mat_list[-1][:, 1] - 2 * vL_mat_list[-1][:, 0])
+    x_mat_list.append(x_mat_list[-1] + deta_t * v_mat_list[-1])
+    xL_mat_list.append(xL_mat_list[-1] + deta_t * vL_mat_list[-1])
+    v_mat_list.append(v_mat_list[-1] + deta_t * deta_v_mat)
+    vL_mat_list.append(vL_mat_list[-1] + deta_t * deta_vL_mat)
+    if np.max(h) < 0.1:
+        print('*' * 50)
+        print("1 over")
+        break
+
+R_mat = np.matrix([[-5, -15, -25, -30, -10, -20, -30, -35],
+                   [1, 1, 1, 1, 3, 3, 3, 3]])
+a = 1
+b = 5
+for _ in t_list:
+    temp_mat1 = -np.dot((R_mat - x_mat_list[-1] - v_mat_list[-1]), L)
+    temp_mat2 = -np.dot((x_mat_list[-1] + v_mat_list[-1]), L)
+    h = get_2d(temp_mat1) - n1 * get_2d(temp_mat2)
+    deta_v_mat = -np.dot(a * (x_mat_list[-1] - R_mat) + b * v_mat_list[-1], L) - a * x_mat_list[-1] + a * R_mat + \
+                  np.dot(a * (xL_mat_list[-1] - RL_mat) + b * vL_mat_list[-1], AL_mat) - b * v_mat_list[-1]
+    for i in range(8):
+        if h[0, i] < 0:
+            deta_v_mat[:, i] *= 0
+    deta_vL_mat = np.matrix(np.zeros((2, 2)))
+    hL = get_2d(np.dot(RL_mat, np.matrix([[1], [-1]]))) - \
+         0.001 * get_2d(np.dot(vL_mat_list[-1] + xL_mat_list[-1], np.matrix([[1], [-1]])))
+    if hL > 0:
+        deta_vL_mat[:, 1] = -(xL_mat_list[-1][:, 1] - xL_mat_list[-1][:, 0] - RL_mat[:, 1] + RL_mat[:, 0] +
+                              2 * vL_mat_list[-1][:, 1] - 2 * vL_mat_list[-1][:, 0])
+    x_mat_list.append(x_mat_list[-1] + deta_t * v_mat_list[-1])
+    xL_mat_list.append(xL_mat_list[-1] + deta_t * vL_mat_list[-1])
+    v_mat_list.append(v_mat_list[-1] + deta_t * deta_v_mat)
+    vL_mat_list.append(vL_mat_list[-1] + deta_t * deta_vL_mat)
+    if np.max(h) < 0.1:
+        print('*' * 50)
+        print("aa")
+        break
+
+R_mat = np.matrix([[-5, -15, -25, -30, -10, -20, -30, -35],
+                   [3, 3, 3, 1, 3, 1, 3, 1]])
+L = np.zeros((8, 8))
+n2 = 0.02733
+n3 = 0.05915
+AL_mat = np.matrix([[0, 0, 0, 1, 0, 1, 0, 1], [1, 1, 1, 0, 1, 0, 1, 0]])
+n = np.matrix([[n2 if i == 1 else n3 for i in np.array(AL_mat)[0, :]]])
+a = 2
+b = 5
+for _ in t_list:
+    temp_mat1 = -np.dot((R_mat - x_mat_list[-1] - v_mat_list[-1]), L)
+    temp_mat2 = -np.dot((x_mat_list[-1] + v_mat_list[-1]), L)
+    h = get_2d(temp_mat1) - np.multiply(n, get_2d(temp_mat2))
+    deta_v_mat = -np.dot(a * (x_mat_list[-1] - R_mat) + b * v_mat_list[-1], L) - a * x_mat_list[-1] + a * R_mat + \
+                 np.dot(a * (xL_mat_list[-1] - RL_mat) + b * vL_mat_list[-1], AL_mat) - b * v_mat_list[-1]
+    for i in range(8):
+        if h[0, i] < 0:
+            deta_v_mat[:, i] *= 0
+    deta_vL_mat = np.matrix(np.zeros((2, 2)))
+    hL = get_2d(np.dot(RL_mat, np.matrix([[1], [-1]]))) - \
+         0.001 * get_2d(np.dot(vL_mat_list[-1] + xL_mat_list[-1], np.matrix([[1], [-1]])))
+    if hL > 0:
+        deta_vL_mat[:, 1] = -(xL_mat_list[-1][:, 1] - xL_mat_list[-1][:, 0] - RL_mat[:, 1] + RL_mat[:, 0] +
+                              2 * vL_mat_list[-1][:, 1] - 2 * vL_mat_list[-1][:, 0])
+    x_mat_list.append(x_mat_list[-1] + deta_t * v_mat_list[-1])
+    xL_mat_list.append(xL_mat_list[-1] + deta_t * vL_mat_list[-1])
+    v_mat_list.append(v_mat_list[-1] + deta_t * deta_v_mat)
+    vL_mat_list.append(vL_mat_list[-1] + deta_t * deta_vL_mat)
+    if abs(x_mat_list[-1][1, 0] - 3) < 0.05 and v_mat_list[-1][1, 0] < 0.1:
+        print("*"*50)
+        print("bb")
+        break
+
+L = np.matrix([[1, 0, 0, 0, -1, 0, 0, 0], [0, 2, -1, 0, -1, 0, 0, 0], [0, -1, 2, 0, 0, 0, -1,0],
+               [0, 0, 0, 2, 0, -1, 0, -1], [-1, -1, 0, 0, 2, 0, 0, 0], [0, 0, 0, -1, 0, 1, 0, 0],
+               [0, 0, -1, 0, 0, 0, 1, 0], [0, 0, 0, -1, 0, 0, 0, 1]])
+R_mat = np.matrix([[-5, -15, -20, -10, -10, -5, -25, -15],
+                   [3, 3, 3, 1, 3, 1, 3, 1]])
+a = 1
+b = 2
+for _ in list(t_list):
+    temp_mat1 = -np.dot((R_mat - x_mat_list[-1] - v_mat_list[-1]), L)
+    temp_mat2 = -np.dot((x_mat_list[-1] + v_mat_list[-1]), L)
+    h = get_2d(temp_mat1) - np.multiply(n, get_2d(temp_mat2))
+    deta_v_mat = -np.dot(a * (x_mat_list[-1] - R_mat) + b * v_mat_list[-1], L) - a * (x_mat_list[-1] - R_mat) + \
+                 np.dot(a * (xL_mat_list[-1] - RL_mat) + b * vL_mat_list[-1], AL_mat) - b * v_mat_list[-1]
+    for i in range(8):
+        if h[0, i] < 0 and False:
+            deta_v_mat[:, i] *= 0
+    deta_vL_mat = np.matrix(np.zeros((2, 2)))
+    hL = get_2d(np.dot(RL_mat, np.matrix([[1], [-1]]))) - \
+         0.001 * get_2d(np.dot(vL_mat_list[-1] + xL_mat_list[-1], np.matrix([[1], [-1]])))
+    if hL > 0:
+        deta_vL_mat[:, 1] = -(xL_mat_list[-1][:, 1] - xL_mat_list[-1][:, 0] - RL_mat[:, 1] + RL_mat[:, 0] +
+                              2 * vL_mat_list[-1][:, 1] - 2 * vL_mat_list[-1][:, 0])
+    x_mat_list.append(x_mat_list[-1] + deta_t * v_mat_list[-1])
+    xL_mat_list.append(xL_mat_list[-1] + deta_t * vL_mat_list[-1])
+    v_mat_list.append(v_mat_list[-1] + deta_t * deta_v_mat)
+    vL_mat_list.append(vL_mat_list[-1] + deta_t * deta_vL_mat)
+    if np.max(h) < 0.01:
+        print('*'*50)
+        print("jj")
+        break
+
+c_list = ["red", "blue", "orange", "green", "olive", "gold", "purple", "darkred"]
+for i, c in zip(range(8), c_list):
+    plt.plot([x[0, i] for x in x_mat_list], c=c)
+plt.show()
+
+for i, c in zip(range(8), c_list):
+    plt.plot([x[1, i] for x in x_mat_list], c=c)
+for i, c in zip([0, 1], ["black", "brown"]):
+    plt.plot([x[1, i] for x in xL_mat_list], c=c)
+plt.show()
+
+def draw(i):
+    plt.cla()
+    global deta
+    for j, c in zip(range(8), c_list):
+        plt.plot([x[0, j] for x in x_mat_list[(i-100)*deta if i > 100 else 0:i*deta]],
+                 [x[1, j] for x in x_mat_list[(i-100)*deta if i > 100 else 0:i*deta]], c=c)
+        plt.annotate('', xy=(x_mat_list[i * deta][:, j] + v_mat_list[i * deta][:, j] * 0.2),
+                     xytext=(x_mat_list[i * deta][:, j]), arrowprops=dict(connectionstyle="arc3", facecolor=c))
+    for j, c in zip(range(2), ["black", "brown"]):
+        plt.plot([x[0, j] for x in xL_mat_list[(i-100)*deta if i > 100 else 0:i * deta]],
+                 [x[1, j] for x in xL_mat_list[(i-100)*deta if i > 100 else 0:i * deta]], c=c)
+        plt.annotate('', xy=(xL_mat_list[i * deta][:, j] + vL_mat_list[i * deta][:, j] * 0.2),
+                     xytext=(xL_mat_list[i * deta][:, j]), arrowprops=dict(connectionstyle="arc3", facecolor=c))
+    plt.plot([0, 300], [2, 2], c="black")
+    plt.legend(["Follower" + str(num) for num in range(1, 9)] + ["Leader1", "Leader2"])
+    plt.ylabel("y")
+    plt.xlabel("x")
+    plt.xlim(max([x_mat_list[i*deta][0, 7] - 20, 0]), xL_mat_list[i*deta][0, 0] + 30)
+    plt.ylim(0, 4)
+
+fig = plt.figure(figsize=(18, 10))
+deta = 80
+an = ani.FuncAnimation(fig, draw, int(len(x_mat_list)/deta), interval=0.5)
+# an = ani.FuncAnimation(fig, draw, 1, interval=0.5)
+fig.set_size_inches(18, 10, True)
+an.save("w3.gif")
+plt.show()
